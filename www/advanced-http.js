@@ -81,19 +81,24 @@ var publicInterface = {
     var onSuccess = helpers.injectCookieHandler(url, success);
     var onFail = helpers.injectCookieHandler(url, failure);
 
+    if (options.rawBody) {
+      onSuccess = helpers.injectRawBodyHandler(onSuccess);
+      onFail = helpers.injectRawBodyHandler(onFail);
+    }
+
     switch(options.method) {
       case 'post':
       case 'put':
       case 'patch':
         var data = helpers.getProcessedData(options.data, options.serializer);
-        return exec(onSuccess, onFail, 'CordovaHttpPlugin', options.method, [ url, data, options.serializer, headers, options.timeout ]);
+        return exec(onSuccess, onFail, 'CordovaHttpPlugin', options.method, [ url, data, options.serializer, headers, options.timeout, options.rawBody ]);
       case 'upload':
-        return exec(onSuccess, onFail, 'CordovaHttpPlugin', 'uploadFile', [ url, options.params, headers, options.filePath, options.name, options.timeout ]);
+        return exec(onSuccess, onFail, 'CordovaHttpPlugin', 'uploadFile', [ url, options.params, headers, options.filePath, options.name, options.timeout, options.rawBody ]);
       case 'download':
         var onDownloadSuccess = helpers.injectCookieHandler(url, helpers.injectFileEntryHandler(success));
-        return exec(onDownloadSuccess, onFail, 'CordovaHttpPlugin', 'downloadFile', [ url, options.params, headers, options.filePath, options.timeout ]);
+        return exec(onDownloadSuccess, onFail, 'CordovaHttpPlugin', 'downloadFile', [ url, options.params, headers, options.filePath, options.timeout, options.rawBody ]);
       default:
-        return exec(onSuccess, onFail, 'CordovaHttpPlugin', options.method, [ url, options.params, headers, options.timeout ]);
+        return exec(onSuccess, onFail, 'CordovaHttpPlugin', options.method, [ url, options.params, headers, options.timeout, options.rawBody ]);
     }
   },
   post: function (url, data, headers, success, failure) {

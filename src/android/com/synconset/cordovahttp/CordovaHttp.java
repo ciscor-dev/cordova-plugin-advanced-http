@@ -4,6 +4,7 @@
 package com.synconset.cordovahttp;
 
 import org.apache.cordova.CallbackContext;
+import org.apache.cordova.LOG;
 
 import org.json.JSONException;
 import org.json.JSONArray;
@@ -45,18 +46,20 @@ abstract class CordovaHttp {
     private String serializerName;
     private JSONObject headers;
     private int timeoutInMilliseconds;
+    private boolean rawBody;
     private CallbackContext callbackContext;
 
-    public CordovaHttp(String urlString, Object params, JSONObject headers, int timeout, CallbackContext callbackContext) {
-        this(urlString, params, "default", headers, timeout, callbackContext);
+    public CordovaHttp(String urlString, Object params, JSONObject headers, int timeout, boolean rawBody, CallbackContext callbackContext) {
+        this(urlString, params, "default", headers, timeout, rawBody, callbackContext);
     }
 
-    public CordovaHttp(String urlString, Object params, String serializerName, JSONObject headers, int timeout, CallbackContext callbackContext) {
+    public CordovaHttp(String urlString, Object params, String serializerName, JSONObject headers, int timeout, boolean rawBody, CallbackContext callbackContext) {
         this.urlString = urlString;
         this.params = params;
         this.serializerName = serializerName;
         this.headers = headers;
         this.timeoutInMilliseconds = timeout;
+        this.rawBody = rawBody;
         this.callbackContext = callbackContext;
     }
 
@@ -198,6 +201,14 @@ abstract class CordovaHttp {
           request.send(this.getParamsObject().toString());
       } else if ("utf8".equals(this.getSerializerName())) {
           request.send(this.getParamsMap().get("text").toString());
+      } else if ("raw".equals(this.getSerializerName())) {
+          ArrayList<Object> bytesArrayList = (ArrayList<Object>)(this.getParamsMap().get("bytes"));
+          byte[] bytes = new byte[bytesArrayList.size()];
+          for (int i = 0; i < bytes.length; i++) {
+            Integer intValue = (Integer)(bytesArrayList.get(i));
+            bytes[i] = intValue.byteValue();
+          }
+          request.send(bytes);
       } else {
           request.form(this.getParamsMap());
       }
@@ -253,10 +264,10 @@ abstract class CordovaHttp {
         this.addResponseHeaders(request, response);
 
         if (code >= 200 && code < 300) {
-            response.put("data", decodeBody(rawOutputReference, request.charset()));
+            response.put("data", rawBody ? new JSONArray(rawOutputReference.get().array()) : decodeBody(rawOutputReference, request.charset()));
             this.getCallbackContext().success(response);
         } else {
-            response.put("error", decodeBody(rawOutputReference, request.charset()));
+            response.put("error", rawBody ? new JSONArray(rawOutputReference.get().array()) : decodeBody(rawOutputReference, request.charset()));
             this.getCallbackContext().error(response);
         }
       } catch(JSONException e) {

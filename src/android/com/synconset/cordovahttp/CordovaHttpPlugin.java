@@ -40,7 +40,8 @@ public class CordovaHttpPlugin extends CordovaPlugin {
             String serializerName = args.getString(2);
             JSONObject headers = args.getJSONObject(3);
             int timeoutInMilliseconds = args.getInt(4) * 1000;
-            CordovaHttpPost post = new CordovaHttpPost(urlString, params, serializerName, headers, timeoutInMilliseconds, callbackContext);
+            boolean rawBody = args.getBoolean(5);
+            CordovaHttpPost post = new CordovaHttpPost(urlString, params, serializerName, headers, timeoutInMilliseconds, rawBody, callbackContext);
 
             cordova.getThreadPool().execute(post);
         } else if (action.equals("get")) {
@@ -48,7 +49,8 @@ public class CordovaHttpPlugin extends CordovaPlugin {
             Object params = args.get(1);
             JSONObject headers = args.getJSONObject(2);
             int timeoutInMilliseconds = args.getInt(3) * 1000;
-            CordovaHttpGet get = new CordovaHttpGet(urlString, params, headers, timeoutInMilliseconds, callbackContext);
+            boolean rawBody = args.getBoolean(4);
+            CordovaHttpGet get = new CordovaHttpGet(urlString, params, headers, timeoutInMilliseconds, rawBody, callbackContext);
 
             cordova.getThreadPool().execute(get);
         } else if (action.equals("put")) {
@@ -57,7 +59,8 @@ public class CordovaHttpPlugin extends CordovaPlugin {
             String serializerName = args.getString(2);
             JSONObject headers = args.getJSONObject(3);
             int timeoutInMilliseconds = args.getInt(4) * 1000;
-            CordovaHttpPut put = new CordovaHttpPut(urlString, params, serializerName, headers, timeoutInMilliseconds, callbackContext);
+            boolean rawBody = args.getBoolean(5);
+            CordovaHttpPut put = new CordovaHttpPut(urlString, params, serializerName, headers, timeoutInMilliseconds, rawBody, callbackContext);
 
             cordova.getThreadPool().execute(put);
         } else if (action.equals("patch")) {
@@ -66,7 +69,8 @@ public class CordovaHttpPlugin extends CordovaPlugin {
             String serializerName = args.getString(2);
             JSONObject headers = args.getJSONObject(3);
             int timeoutInMilliseconds = args.getInt(4) * 1000;
-            CordovaHttpPatch patch = new CordovaHttpPatch(urlString, params, serializerName, headers, timeoutInMilliseconds, callbackContext);
+            boolean rawBody = args.getBoolean(5);
+            CordovaHttpPatch patch = new CordovaHttpPatch(urlString, params, serializerName, headers, timeoutInMilliseconds, rawBody, callbackContext);
 
             cordova.getThreadPool().execute(patch);
         }
@@ -75,7 +79,8 @@ public class CordovaHttpPlugin extends CordovaPlugin {
             Object params = args.get(1);
             JSONObject headers = args.getJSONObject(2);
             int timeoutInMilliseconds = args.getInt(3) * 1000;
-            CordovaHttpDelete delete = new CordovaHttpDelete(urlString, params, headers, timeoutInMilliseconds, callbackContext);
+            boolean rawBody = args.getBoolean(4);
+            CordovaHttpDelete delete = new CordovaHttpDelete(urlString, params, headers, timeoutInMilliseconds, rawBody, callbackContext);
 
             cordova.getThreadPool().execute(delete);
         } else if (action.equals("head")) {
@@ -83,7 +88,8 @@ public class CordovaHttpPlugin extends CordovaPlugin {
             Object params = args.get(1);
             JSONObject headers = args.getJSONObject(2);
             int timeoutInMilliseconds = args.getInt(3) * 1000;
-            CordovaHttpHead head = new CordovaHttpHead(urlString, params, headers, timeoutInMilliseconds, callbackContext);
+            boolean rawBody = args.getBoolean(4);
+            CordovaHttpHead head = new CordovaHttpHead(urlString, params, headers, timeoutInMilliseconds, rawBody, callbackContext);
 
             cordova.getThreadPool().execute(head);
         } else if (action.equals("setSSLCertMode")) {
@@ -112,7 +118,8 @@ public class CordovaHttpPlugin extends CordovaPlugin {
             String filePath = args.getString(3);
             String name = args.getString(4);
             int timeoutInMilliseconds = args.getInt(5) * 1000;
-            CordovaHttpUpload upload = new CordovaHttpUpload(urlString, params, headers, filePath, name, timeoutInMilliseconds, callbackContext);
+            boolean rawBody = args.getBoolean(6);
+            CordovaHttpUpload upload = new CordovaHttpUpload(urlString, params, headers, filePath, name, timeoutInMilliseconds, rawBody, callbackContext);
 
             cordova.getThreadPool().execute(upload);
         } else if (action.equals("downloadFile")) {
@@ -121,7 +128,8 @@ public class CordovaHttpPlugin extends CordovaPlugin {
             JSONObject headers = args.getJSONObject(2);
             String filePath = args.getString(3);
             int timeoutInMilliseconds = args.getInt(4) * 1000;
-            CordovaHttpDownload download = new CordovaHttpDownload(urlString, params, headers, filePath, timeoutInMilliseconds, callbackContext);
+            boolean rawBody = args.getBoolean(5);
+            CordovaHttpDownload download = new CordovaHttpDownload(urlString, params, headers, filePath, timeoutInMilliseconds, rawBody, callbackContext);
 
             cordova.getThreadPool().execute(download);
         } else if (action.equals("disableRedirect")) {

@@ -16,14 +16,14 @@ import com.github.kevinsawicki.http.HttpRequest;
 import com.github.kevinsawicki.http.HttpRequest.HttpRequestException;
 
 class CordovaHttpHead extends CordovaHttp implements Runnable {
-    public CordovaHttpHead(String urlString, Object params, JSONObject headers, int timeout, CallbackContext callbackContext) {
-        super(urlString, params, headers, timeout, callbackContext);
+    public CordovaHttpHead(String urlString, Object params, JSONObject headers, int timeout, boolean rawBody, CallbackContext callbackContext) {
+        super(urlString, params, headers, timeout, rawBody, callbackContext);
     }
 
     @Override
     public void run() {
         try {
-            HttpRequest request = HttpRequest.head(this.getUrlString(), this.getParamsMap(), true);
+            HttpRequest request = HttpRequest.head(this.getUrlString(), this.getParamsMap(), false);
 
             this.prepareRequest(request);
             this.returnResponseObject(request);

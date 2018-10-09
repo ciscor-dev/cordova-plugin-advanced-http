@@ -30,8 +30,8 @@ class CordovaHttpUpload extends CordovaHttp implements Runnable {
     private String filePath;
     private String name;
 
-    public CordovaHttpUpload(String urlString, Object params, JSONObject headers, String filePath, String name, int timeout, CallbackContext callbackContext) {
-        super(urlString, params, headers, timeout, callbackContext);
+    public CordovaHttpUpload(String urlString, Object params, JSONObject headers, String filePath, String name, int timeout, boolean rawBody, CallbackContext callbackContext) {
+        super(urlString, params, headers, timeout, rawBody, callbackContext);
         this.filePath = filePath;
         this.name = name;
     }
@@ -70,7 +70,7 @@ class CordovaHttpUpload extends CordovaHttp implements Runnable {
                     return;
                 }
             }
-          
+
             request.part(this.name, filename, mimeType, new File(uri));
 
             this.returnResponseObject(request);

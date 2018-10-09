@@ -2,7 +2,7 @@ var pluginId = module.id.slice(0, module.id.lastIndexOf('.'));
 var cookieHandler = require(pluginId + '.cookie-handler');
 var messages = require(pluginId + '.messages');
 
-var validSerializers = [ 'urlencoded', 'json', 'utf8' ];
+var validSerializers = [ 'urlencoded', 'json', 'utf8', 'raw' ];
 var validCertModes = [ 'default', 'nocheck', 'pinned' ];
 var validHttpMethods = [ 'get', 'put', 'post', 'patch', 'head', 'delete', 'upload', 'download' ];
 
@@ -14,6 +14,7 @@ module.exports = {
   checkForBlacklistedHeaderKey: checkForBlacklistedHeaderKey,
   checkForInvalidHeaderValue: checkForInvalidHeaderValue,
   injectCookieHandler: injectCookieHandler,
+  injectRawBodyHandler: injectRawBodyHandler,
   injectFileEntryHandler: injectFileEntryHandler,
   getMergedHeaders: getMergedHeaders,
   getProcessedData: getProcessedData,
@@ -149,6 +150,17 @@ function injectCookieHandler(url, cb) {
   }
 }
 
+function injectRawBodyHandler(cb) {
+  return function(response) {
+    if (response.data) {
+      response.data = new Int8Array(response.data).buffer;
+    } else if (response.error) {
+      response.error = new Int8Array(response.error).buffer;
+    }
+    cb(response);
+  }
+}
+
 function injectFileEntryHandler(cb) {
   return function(response) {
     cb(createFileEntry(response.file));
@@ -197,7 +209,11 @@ function getTypeOf(object) {
     case '[object Undefined]':
       return 'Undefined';
     default:
-      return 'Unknown';
+      if (object instanceof ArrayBuffer) {
+        return 'ArrayBuffer';
+      } else {
+        return 'Unknown';
+      }
   }
 }
 
@@ -207,6 +223,8 @@ function getAllowedDataTypes(dataSerializer) {
       return ['String'];
     case 'urlencoded':
       return ['Object'];
+    case 'raw':
+      return ['ArrayBuffer'];
     default:
       return ['Array', 'Object'];
   }
@@ -224,6 +242,13 @@ function getProcessedData(data, dataSerializer) {
 
   if (dataSerializer === 'utf8') {
     data = { text: data };
+  } else if (dataSerializer === 'raw') {
+    var byteArray = new Int8Array(data);
+    var bytes = [];
+    for (var i = 0; i < byteArray.length; i++) {
+      bytes[i] = byteArray[i];
+    }
+    data = { bytes: bytes };
   }
 
   return data;
@@ -246,6 +271,7 @@ function handleMissingOptions(options, globals) {
     method: checkHttpMethod(options.method || validHttpMethods[0]),
     serializer: checkSerializer(options.serializer || globals.serializer),
     timeout: checkTimeoutValue(options.timeout || globals.timeout),
+    rawBody: !!options.rawBody,
     headers: checkHeadersObject(options.headers || {}),
     params: checkParamsObject(options.params || {}),
     data: options.data || null,
